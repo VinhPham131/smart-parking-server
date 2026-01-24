@@ -2,6 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
+import { VehiclesModule } from './vehicles/vehicles.module';
+import { ParkingSlotsModule } from './parking-slots/parking-slots.module';
+import { ParkingSessionsModule } from './parking-sessions/parking-sessions.module';
+import { AuthModule } from './auth/auth.module';
+import { QrCodeModule } from './qr-code/qr-code.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -16,6 +21,11 @@ import { UsersModule } from './users/users.module';
       synchronize: true,
     }),
     UsersModule,
+    VehiclesModule,
+    ParkingSlotsModule,
+    ParkingSessionsModule,
+    AuthModule,
+    QrCodeModule,
   ],
 })
 export class AppModule {}
