@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { UsersRepository } from 'src/users/user.repository';
 
 export interface JwtPayload {
   sub: string;
@@ -10,12 +9,15 @@ export interface JwtPayload {
   role: string;
 }
 
+export interface AuthenticatedUser {
+  id: string;
+  email: string;
+  role: string;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    private configService: ConfigService,
-    private usersRepository: UsersRepository,
-  ) {
+  constructor(private configService: ConfigService) {
     const secret = configService.get<string>('JWT_SECRET');
     if (!secret) {
       throw new Error('JWT_SECRET is not defined in environment variables');
@@ -27,17 +29,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload) {
-    const user = await this.usersRepository.findUserById(payload.sub);
-
-    if (!user) {
-      throw new UnauthorizedException('User not found');
+  validate(payload: JwtPayload): AuthenticatedUser {
+    if (!payload?.sub || !payload?.role) {
+      throw new UnauthorizedException('Invalid token');
     }
 
     return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
+      id: payload.sub,
+      email: payload.username ?? '',
+      role: payload.role,
     };
   }
 }

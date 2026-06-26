@@ -1,98 +1,216 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Smart Parking Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend API for a smart parking system (Graduation Project). Built with **NestJS**, connected to PostgreSQL, Redis, MQTT (RFID gate), and a Python **OCR** microservice for license plate verification at check-in/check-out.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+> **Frontend:** The React UI lives in a separate repo — [VinhPham131/smart-parking-ui](https://github.com/VinhPham131/smart-parking-ui).
 
-## Description
+## Overview
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The system supports:
 
-## Project setup
+- **Parking management**: areas, slots, sessions, history
+- **RFID + OCR**: gate device sends UID via MQTT → backend calls OCR service to capture plate → matches against registered vehicle
+- **Reservations & payments**: booking, hourly fees, member wallet
+- **Realtime**: WebSocket (parking status, notifications)
+- **AI Agent** (admin): data lookup chatbot via Ollama
+- **Authentication**: JWT with `user` / `admin` roles
 
-```bash
-$ npm install
+```text
+[RFID Gate] --MQTT--> [NestJS Backend] --HTTP--> [OCR Service + Camera]
+                           |
+                    PostgreSQL / Redis
+                           |
+                    [Frontend / Mobile]
 ```
 
-## Compile and run the project
+## Requirements
 
-```bash
-# development
-$ npm run start
+| Component | Suggested version |
+|-----------|-------------------|
+| Node.js | 22+ |
+| npm | 10+ |
+| PostgreSQL | 14+ |
+| Redis | 6+ (can be disabled for local dev) |
+| MQTT Broker | Mosquitto (can be disabled for local dev) |
+| Python OCR service | See [ocr-service/README.md](./ocr-service/README.md) |
+| Ollama | Optional — required only for AI Agent |
 
-# watch mode
-$ npm run start:dev
+## Project structure
 
-# production mode
-$ npm run start:prod
+```text
+backend/
+├── src/                    # NestJS source
+│   ├── auth/               # Register, login, JWT
+│   ├── parking-areas/      # Areas & slots
+│   ├── parking-sessions/   # Check-in/out, RFID events
+│   ├── parking-history/    # Parking history
+│   ├── vehicles/           # Vehicles
+│   ├── rfid/               # RFID cards
+│   ├── reservations/       # Reservations
+│   ├── payments/           # Payments & fee calculation
+│   ├── mqtt/               # RFID gate listener
+│   ├── camera/             # OCR service HTTP client
+│   ├── gateways/           # WebSocket realtime
+│   ├── ai-agents/          # Admin chatbot (Ollama)
+│   └── ...
+├── ocr-service/            # License plate recognition microservice
+├── best.pt                 # YOLO model (not committed — add manually)
+└── Dockerfile
 ```
 
-## Run tests
+## Setup
+
+### 1. Clone & install dependencies
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+cd backend
+npm install
 ```
 
-## Deployment
+### 2. Environment variables
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Create a `.env` file in the `backend/` directory:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+```env
+# Server
+PORT=3000
+
+# Database (PostgreSQL)
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+DB_NAME=smart_parking
+DB_POOL_MAX=30
+
+# JWT
+JWT_SECRET=your_jwt_secret_key
+
+# Redis (set REDIS_ENABLED=false if Redis is not installed)
+REDIS_ENABLED=true
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+CACHE_TTL_SECONDS=60
+
+# MQTT (set MQTT_ENABLED=false when no gate hardware is available)
+MQTT_ENABLED=true
+
+# OCR service
+OCR_SERVICE_URL=http://localhost:8000
+OCR_SERVICE_TIMEOUT_MS=30000
+
+# Email (forgot password)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your@gmail.com
+EMAIL_PASSWORD=your_app_password
+EMAIL_FROM="Smart Parking <your@gmail.com>"
+FRONTEND_URL=http://localhost:5173
+```
+
+### 3. Initialize database
+
+Create a PostgreSQL database:
+
+```sql
+CREATE DATABASE smart_parking;
+```
+
+The schema syncs automatically on startup (`synchronize: true`). Migrations are optional:
 
 ```bash
-$ npm install -g mau
-$ mau deploy
+npm run migration:run
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 4. Run OCR service (when testing RFID + camera)
 
-## Resources
+```bash
+cd ocr-service
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+See [ocr-service/README.md](./ocr-service/README.md) for details.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### 5. Run backend
 
-## Support
+```bash
+# Development (hot reload)
+npm run start:dev
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Production
+npm run build
+npm run start:prod
+```
 
-## Stay in touch
+API base URL: `http://localhost:3000/api`
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Main API modules
 
-## License
+All routes (except those marked `@Public()`) require the header `Authorization: Bearer <token>`.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+| Module | Prefix | Description |
+|--------|--------|-------------|
+| Auth | `/api/auth` | register, login, forgot/reset password |
+| Users | `/api/users` | Profile, user management (admin) |
+| Vehicles | `/api/vehicles` | Vehicle registration |
+| Parking Areas | `/api/parking-areas` | Parking areas |
+| Parking Sessions | `/api/parking-sessions` | Active sessions |
+| Parking History | `/api/parking-history` | History |
+| RFID | `/api/rfid` | RFID card management |
+| RFID Requests | `/api/rfid-requests` | Card issuance requests |
+| Reservations | `/api/reservations` | Reservations |
+| Payments | `/api/payments` | Payments |
+| Notifications | `/api/notifications` | Notifications |
+| Analytics | `/api/analytics` | Statistics (admin) |
+| AI Agent | `/api/ai-agent` | Admin chat (Ollama) |
+| QR Code | `/api/qr-code` | QR codes |
+
+## RFID check-in flow
+
+1. Gate device publishes MQTT topic `gate/checkin/rfid` with `{ uid, area }`
+2. Backend looks up RFID → vehicle → registered license plate
+3. Calls `POST /capture-plate` on the OCR service
+4. Compares detected plate with registered plate
+5. Creates parking session, opens gate via MQTT `gate/checkin/command`
+
+Check-out follows the same pattern via topic `gate/checkout/rfid`.
+
+## AI Agent (optional)
+
+Requires [Ollama](https://ollama.com/) running locally with model `llama3:8b`:
+
+```bash
+ollama pull llama3:8b
+ollama serve
+```
+
+Endpoint: `POST /api/ai-agent/chat` (requires `admin` role).
+
+
+> The OCR service and YOLO model must run separately (or in a separate container) because they depend on camera/GPU access.
+
+## Useful scripts
+
+```bash
+npm run start:dev          # Dev server
+npm run lint               # ESLint
+npm run test               # Unit tests
+npm run migration:run      # Run migrations
+npm run migration:generate # Generate a new migration
+```
+
+## Development notes
+
+- **No camera/MQTT**: set `MQTT_ENABLED=false` and test APIs manually; the RFID flow requires both MQTT and the OCR service.
+- **No Redis**: set `REDIS_ENABLED=false` — cache falls back to in-memory.
+- **YOLO model**: place `best.pt` in the `backend/` directory (see OCR README).
+- WebSocket gateways authenticate clients using the same `JWT_SECRET`.
+
+## Related
+
+- [smart-parking-ui](https://github.com/VinhPham131/smart-parking-ui) — React + TypeScript + Vite frontend
+- [ocr-service/README.md](./ocr-service/README.md) — License plate recognition (YOLO + EasyOCR)

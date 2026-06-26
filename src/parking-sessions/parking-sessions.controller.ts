@@ -3,5 +3,5 @@ import { ParkingSessionsService } from './parking-sessions.service';
 
 @Controller('parking-sessions')
 export class ParkingSessionsController {
-  constructor(private readonly parkingSessionsService: ParkingSessionsService) {}
+  constructor(private readonly parkingSessionsService: ParkingSessionsService) { }
 }

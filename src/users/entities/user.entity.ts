@@ -1,7 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, Unique, Index } from 'typeorm';
 import { Vehicle } from '../../vehicles/entities/vehicles.entity';
+import { Notification } from '../../notifications/entities/notification.entity';
 
 @Entity('users')
+@Index('IDX_users_role', ['role'])
+@Index('IDX_users_created_at', ['created_at'])
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -29,12 +32,18 @@ export class User {
   @Column()
   role: string;
 
+  @Column({ default: 0 })
+  balance: number;
+
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
   @OneToMany(() => Vehicle, (vehicle) => vehicle.user)
   vehicles: Vehicle[];
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[];
 }

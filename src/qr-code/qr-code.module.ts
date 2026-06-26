@@ -6,5 +6,5 @@ import { QrCodeService } from './qr-code.service';
   controllers: [QrCodeController],
   providers: [QrCodeService],
   exports: [QrCodeService],
-})
+})  
 export class QrCodeModule {}

@@ -1,0 +1,10 @@
+export const DayByMinutes = 1440;
+export const REGULAR_RATE = 30000;
+export const OVERNIGHT_RATE = 300000;
+export const OVERNIGHT_START = 23;
+export const OVERNIGHT_END = 6;
+export const MONTHLY_FEE = 1000000;
+export const ONE_HOUR_IN_MILLISECONDS = 3600000;
+export const MEMBER_RATE = 0;
+export const RESERVATION_CHECKIN_WINDOW_MS = 15 * 60000;
+export const LIMIT_DELAY_MS = RESERVATION_CHECKIN_WINDOW_MS;
