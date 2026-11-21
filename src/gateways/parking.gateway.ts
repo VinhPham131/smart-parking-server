@@ -6,6 +6,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import * as jwt from 'jsonwebtoken';
+import { corsOrigin } from '../common/config/cors';
 import { UserRole } from 'src/constants/config';
 import { ADMIN_ROOM, PARKING_AREA_CHANGED_EVENT, PARKING_HISTORY_CHANGED_EVENT } from './constants';
 export interface ParkingHistoryChangedPayload {
@@ -32,7 +33,7 @@ export interface ParkingAreaChangedPayload {
 
 @WebSocketGateway({
     cors: {
-        origin: 'http://localhost:5173',
+        origin: corsOrigin,
     },
 })
 export class ParkingGateway implements OnGatewayConnection {
@@ -40,20 +41,24 @@ export class ParkingGateway implements OnGatewayConnection {
     server: Server;
 
     async handleConnection(@ConnectedSocket() client: Socket) {
-        const token = client.handshake.auth?.token;
-        if (!token) {
-            return;
+        try {
+            const token = client.handshake.auth?.token;
+            if (!token) {
+                return;
+            }
+
+            const decoded = jwt.verify(
+                token,
+                process.env.JWT_SECRET as string,
+            ) as { role?: string };
+
+            if (decoded.role === UserRole.ADMIN) {
+                await client.join(ADMIN_ROOM);
+            }
+        } catch (err) {
+            console.error('WS Auth error:', err.message);
+            client.disconnect();
         }
-
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET as string,
-        ) as { role?: string };
-
-        if (decoded.role === UserRole.ADMIN) {
-            await client.join(ADMIN_ROOM);
-        }
-
     }
 
     emitParkingHistoryChanged(payload: ParkingHistoryChangedPayload) {

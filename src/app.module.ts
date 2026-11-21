@@ -24,6 +24,7 @@ import { BasePaginationModule } from './common/pagination/base-pagination.module
 import { RfidRequestsModule } from './rfid_requests/rfid-requests.module';
 import { MailModule } from './mail/mail.module';
 import { AppCacheModule } from './cache/cache.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -37,7 +38,7 @@ import { AppCacheModule } from './cache/cache.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: process.env.DB_SYNCHRONIZE !== 'false',
       extra: {
         max: Number(process.env.DB_POOL_MAX || 30),
         idleTimeoutMillis: 30_000,
@@ -64,6 +65,7 @@ import { AppCacheModule } from './cache/cache.module';
     RfidRequestsModule,
     MailModule,
   ],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_GUARD,

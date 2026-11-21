@@ -3,8 +3,8 @@ import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common'
 @Injectable()
 export class LlmService {
     private readonly logger = new Logger(LlmService.name);
-    private readonly OLLAMA_URL = 'http://localhost:11434/api/chat';
-    private readonly MODEL = 'llama3:8b';
+    private readonly OLLAMA_URL = `${(process.env.OLLAMA_BASE_URL || 'http://localhost:11434').replace(/\/$/, '')}/api/chat`;
+    private readonly MODEL = process.env.OLLAMA_MODEL || 'llama3:8b';
     private readonly TIMEOUT_MS = 100_000;
 
     async chat(messages: any[]) {

@@ -6,10 +6,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import * as jwt from 'jsonwebtoken';
+import { corsOrigin } from '../common/config/cors';
 
 @WebSocketGateway({
     cors: {
-        origin: 'http://localhost:5173',
+        origin: corsOrigin,
     },
 })
 export class NotificationGateway implements OnGatewayConnection {

@@ -21,10 +21,10 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     private connect() {
         console.log('🔌 Connecting to MQTT...');
 
-        this.client = mqtt.connect('mqtt://localhost:1883', {
-            username: 'gate_device_1',
-            password: 'vinh13012004',
-            clientId: 'backend_server',
+        this.client = mqtt.connect(process.env.MQTT_URL || 'mqtt://localhost:1883', {
+            username: process.env.MQTT_USERNAME,
+            password: process.env.MQTT_PASSWORD,
+            clientId: process.env.MQTT_CLIENT_ID || 'backend_server',
         });
 
         this.client.on('connect', () => {
