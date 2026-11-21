@@ -16,15 +16,15 @@ export class ParkingHistoryTool implements OnModuleInit {
             {
                 name: 'get_parking_histories',
                 description: `Get parking history.
-                            - Input: optional date (e.g. "2026-04-07"), optional slot_id, optional plate (e.g. "43A-12346")
+                            - Input: optional date, optional plate (e.g. "43A-12346")
+                            - Date: prefer the user's original string (e.g. "08/07/2026"); backend converts DD/MM/YYYY → YYYY-MM-DD. If converting yourself: "08/07/2026" → "2026-07-08" (day first, not US month/day)
                             - Returns parking history filtered by provided parameters`,
                 input_schema: {
                     type: 'object',
                     properties: {
                         date: {
                             type: 'string',
-                            format: 'date',
-                            description: 'Target date, e.g. "2026-04-07"',
+                            description: 'Target date. Prefer as written by user (DD/MM/YYYY). Example: "08/07/2026" means 8 July → backend yields 2026-07-08. Never pass "2026-08-07" for "08/07/2026".',
                         },
                         plate: {
                             type: 'string',

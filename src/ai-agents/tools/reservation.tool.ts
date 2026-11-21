@@ -20,7 +20,7 @@ export class ReservationTool implements OnModuleInit {
             {
                 name: 'bulk_update_reservation_status',
                 description: `Approve or reject all Pending reservations on a specific date.
-                            - Requires: date (YYYY-MM-DD) and status ("approve" or "reject")
+                            - Requires: date and status ("approve" or "reject"). Prefer date as the user wrote it (DD/MM/YYYY); backend converts. If converting: 08/07/2026 → 2026-07-08 (day first)
                             - Only affects reservations with Pending status
                             - Returns message with number of affected reservations`,
                 input_schema: {
@@ -28,8 +28,7 @@ export class ReservationTool implements OnModuleInit {
                     properties: {
                         date: {
                             type: 'string',
-                            format: 'date',
-                            description: 'Target date, e.g. "2026-04-07"',
+                            description: 'Target date. Prefer as written by user (DD/MM/YYYY), e.g. "08/07/2026" → 8 July. Never swap to month/day.',
                         },
                         action: {
                             type: 'string',
@@ -47,7 +46,7 @@ export class ReservationTool implements OnModuleInit {
             {
                 name: 'get_reservations',
                 description: `Get list of reservations for a specific date.
-                            - Requires: date (DD-MM-YYYY)
+                            - Requires: date. Prefer as the user wrote it (DD/MM/YYYY); backend converts. If converting: 08/07/2026 → 2026-07-08 (day first, not US month/day)
                             - Returns list of reservations for that date, grouped by status (Pending, Approved, Rejected)
                             - Use when user asks about reservations on a specific date`,
                 input_schema: {
@@ -55,8 +54,7 @@ export class ReservationTool implements OnModuleInit {
                     properties: {
                         date: {
                             type: 'string',
-                            format: 'date',
-                            description: 'Target date, e.g. "07-04-2026"',
+                            description: 'Target date. Prefer as written by user (DD/MM/YYYY), e.g. "08/07/2026" → 8 July. Never swap to month/day.',
                         },
                     },
                     required: ['date'],

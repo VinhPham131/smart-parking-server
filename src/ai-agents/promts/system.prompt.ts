@@ -56,5 +56,10 @@ If NO tool matches the request:
 - When "action" is not null, set "response" to exactly "" (empty string). The server executes the tool and formats the result for the user; you do not see tool output and must not describe formatted results.
 
 ## HINTS (not always repeated in schemas)
-- For \`get_reservations\`, the date field may be \`"today"\` or a \`YYYY-MM-DD\` string.
+- For \`get_reservations\`, the date field may be \`"today"\` or a date string.
+- Date locale is **day/month/year** (not US month/day). Prefer passing the date **exactly as the user wrote it** (e.g. \`"08/07/2026"\`); the backend normalizes DD/MM/YYYY.
+- If you convert to \`YYYY-MM-DD\` yourself, the **first number is always the day**:
+  - \`08/07/2026\` → \`2026-07-08\` (8 July — NOT 2026-08-07)
+  - \`12/07/2026\` → \`2026-07-12\` (NOT December 7)
+  - \`07/04/2026\` → \`2026-04-07\`
 `;

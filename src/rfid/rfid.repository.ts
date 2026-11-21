@@ -75,12 +75,14 @@ export class RfidRepository extends Repository<Rfid> {
     }
 
     async createRfid(rfid_code: string, type: RfidType) {
-        const nextYear = new Date().getFullYear() + 1;
+        const issuedDate = new Date();
+        const expiredDate = new Date(issuedDate);
+        expiredDate.setFullYear(expiredDate.getFullYear() + 1);
         const newRfid = this.create({
             rfid_code,
             type,
-            issued_date: new Date(),
-            expired_date: nextYear,
+            issued_date: issuedDate,
+            expired_date: expiredDate,
             is_active: true,
         });
         return this.save(newRfid);

@@ -5,7 +5,6 @@ import { AiAgentController } from './ai-agent.controller';
 import { ToolRegistry } from './core/tool.registry';
 import { ReservationTool } from './tools/reservation.tool';
 import { ReservationsModule } from 'src/reservations/reservations.module';
-import { MemoryService } from './core/memory.service';
 import { LlmService } from './core/llm.service';
 import { ParkingHistoryTool } from './tools/parking-history.tool';
 import { ParkingHistoryRepository } from 'src/parking-history/parking-history.repository';
@@ -37,7 +36,6 @@ import { ParkingSessionTool } from './tools/parking-session.tool';
         ParkingSessionsRepository,
         ParkingHistoryTool,
         ParkingAreaTool,
-        MemoryService,
         LlmService,
         ParkingAreasService,
         ParkingAreasRepository,
