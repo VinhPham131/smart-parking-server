@@ -75,3 +75,4 @@ DEPLOY.md
 deploy/
 docker-compose.prod.yml
 .env.prod.example
+demo-accounts.local.md

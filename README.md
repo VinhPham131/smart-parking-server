@@ -3,7 +3,9 @@
 > **A Scalable and Resource-Efficient Smart Parking Platform with a Local LLM-Powered AI Assistant**
 > Graduation thesis, B.Sc. Computer Science, VNUK Institute (The University of Da Nang), 2026
 
-**Live demo:** [smart-parking-ui.pages.dev](https://smart-parking-ui.pages.dev) · **API:** `https://api.vinhpham131.id.vn/api` · **Frontend repo:** [smart-parking-ui](https://github.com/VinhPham131/smart-parking-ui)
+**Live demo:** [smart-parking-ui.pages.dev](https://smart-parking-ui.pages.dev) · **Video demo:** [YouTube](https://www.youtube.com/watch?v=_lfnuo5X2wM) · **API:** `https://api.vinhpham131.id.vn/api` · **Frontend repo:** [smart-parking-ui](https://github.com/VinhPham131/smart-parking-ui)
+
+[![Video demo](https://img.youtube.com/vi/_lfnuo5X2wM/hqdefault.jpg)](https://www.youtube.com/watch?v=_lfnuo5X2wM)
 
 ---
 
